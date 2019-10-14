@@ -28,7 +28,6 @@ get '/files/' do
     files.map! { |item| item.name if item.name.match(valid_sha_modified) != nil }
     files.map! { |item| item.delete! '/' if item != nil }
     files.sort_by! { |a|}
-    p files
     [200, (files - [nil]).to_json]
   rescue Exception => e
     p "exception occurred in GET/files", e.message
@@ -38,9 +37,6 @@ end
 post '/files/' do
   begin
     filename = params[:file]
-    p "filename:", filename
-    p "params", params
-    p "content_type", params["type"]
     if filename.nil? or filename == ""
       return [422, "File name not provided"]
     end
@@ -87,7 +83,6 @@ get '/files/:digest' do
   end
   downloaded_file = file.download
   content = downloaded_file.read
-  p "content_type", file.content_type
   body =  content
   status 200
   content_type  file.content_type
