@@ -39,6 +39,8 @@ post '/files/' do
   begin
     filename = params[:file]
     p "filename:", filename
+    p "params", params
+    p "content_type", params["type"]
     if filename.nil? or filename == ""
       return [422, "File name not provided"]
     end
@@ -62,7 +64,8 @@ post '/files/' do
       return [409, "File already exists"]
     end
     temp_file_path = File.absolute_path(params["file"]["tempfile"])
-    file = bucket.create_file "#{temp_file_path}", modified_hex_digest
+    file = bucket.create_file "#{temp_file_path}", modified_hex_digest, content_type: params["file"]["type"]
+    file.content_type
     status 201
     {:uploaded => hex_digest}.to_json
 
@@ -84,6 +87,7 @@ get '/files/:digest' do
   end
   downloaded_file = file.download
   content = downloaded_file.read
+  p "content_type", file.content_type
   body =  content
   status 200
   content_type  file.content_type
